@@ -1,5 +1,7 @@
 import { hash } from 'bcrypt';
-import { ICreate } from '../interfaces/UsersInterface';
+import { s3 } from '../config/aws';
+import { v4 as uuid } from 'uuid';
+import { ICreate, IUpdate } from '../interfaces/UsersInterface';
 import { UsersRepository } from '../repositories/UsersRepository';
 
 class UsersService {
@@ -25,6 +27,19 @@ class UsersService {
     });
 
     return create;
+  }
+
+  async update({ name, oldPassword, newPassword, avatar_url }: IUpdate) {
+    const uploadImage = avatar_url?.buffer;
+    const uploadS3 = await s3
+      .upload({
+        Bucket: 'hairdresses',
+        Key: `${uuid()}-${avatar_url?.originalname}`,
+        Body: uploadImage,
+      })
+      .promise();
+
+    console.log('Image URL =', uploadS3.Location);
   }
 }
 
