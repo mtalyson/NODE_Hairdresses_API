@@ -30,17 +30,47 @@ class UsersService {
     return create;
   }
 
-  async update({ name, oldPassword, newPassword, avatar_url }: IUpdate) {
-    const uploadImage = avatar_url?.buffer;
-    const uploadS3 = await s3
-      .upload({
-        Bucket: 'hairdresses',
-        Key: `${uuid()}-${avatar_url?.originalname}`,
-        Body: uploadImage,
-      })
-      .promise();
+  async update({
+    name,
+    oldPassword,
+    newPassword,
+    avatar_url,
+    user_id,
+  }: IUpdate) {
+    if (oldPassword && newPassword) {
+      const findUserById = await this.usersRepository.findUserById(user_id);
 
-    console.log('Image URL =', uploadS3.Location);
+      if (!findUserById) {
+        throw new Error('User not found.');
+      }
+
+      const passwordMatch = await compare(oldPassword, findUserById.password);
+
+      if (!passwordMatch) {
+        throw new Error('Password invalid.');
+      }
+
+      const hashPassword = await hash(newPassword, 10);
+
+      await this.usersRepository.updatePassword(hashPassword, user_id);
+    }
+
+    if (avatar_url) {
+      const uploadImage = avatar_url?.buffer;
+      const uploadS3 = await s3
+        .upload({
+          Bucket: 'hairdresses',
+          Key: `${uuid()}-${avatar_url?.originalname}`,
+          Body: uploadImage,
+        })
+        .promise();
+
+      await this.usersRepository.update(name, uploadS3.Location, user_id);
+    }
+
+    return {
+      message: 'User updated successfully',
+    };
   }
 
   async auth(email: string, password: string) {

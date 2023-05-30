@@ -9,6 +9,7 @@ export interface IUpdate {
   oldPassword: string;
   newPassword: string;
   avatar_url?: FileUpload;
+  user_id: string;
 }
 
 interface FileUpload {
