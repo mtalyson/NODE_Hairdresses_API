@@ -3,10 +3,10 @@ import { getHours, isBefore, startOfHour } from 'date-fns';
 import { SchedulesRepository } from '../repositories/SchedulesRepository';
 
 class ScheduleService {
-  private scheduleRepository: SchedulesRepository;
+  private schedulesRepository: SchedulesRepository;
 
   constructor() {
-    this.scheduleRepository = new SchedulesRepository();
+    this.schedulesRepository = new SchedulesRepository();
   }
 
   async create({ name, phone, date, user_id }: ICreate) {
@@ -22,7 +22,7 @@ class ScheduleService {
       throw new Error('It is not allowed to schedule old date');
     }
 
-    const checkIsAvailable = await this.scheduleRepository.find(
+    const checkIsAvailable = await this.schedulesRepository.find(
       hourStart,
       user_id,
     );
@@ -31,7 +31,7 @@ class ScheduleService {
       throw new Error('Schedule date is not available');
     }
 
-    const create = await this.scheduleRepository.create({
+    const create = await this.schedulesRepository.create({
       name,
       phone,
       date: hourStart,
@@ -42,7 +42,7 @@ class ScheduleService {
   }
 
   async index(date: Date) {
-    const result = await this.scheduleRepository.findAll(date);
+    const result = await this.schedulesRepository.findAll(date);
 
     return result;
   }
@@ -60,7 +60,7 @@ class ScheduleService {
       throw new Error('It is not allowed to schedule old date');
     }
 
-    const checkIsAvailable = await this.scheduleRepository.find(
+    const checkIsAvailable = await this.schedulesRepository.find(
       hourStart,
       user_id,
     );
@@ -69,7 +69,19 @@ class ScheduleService {
       throw new Error('Schedule date is not available');
     }
 
-    const result = await this.scheduleRepository.update(id, date);
+    const result = await this.schedulesRepository.update(id, date);
+
+    return result;
+  }
+
+  async delete(id: string) {
+    const checkExists = await this.schedulesRepository.findById(id);
+
+    if (!checkExists) {
+      throw new Error('Schedule doesnt exists');
+    }
+
+    const result = await this.schedulesRepository.delete(id);
 
     return result;
   }
