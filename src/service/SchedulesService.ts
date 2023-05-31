@@ -9,7 +9,7 @@ class ScheduleService {
     this.scheduleRepository = new SchedulesRepository();
   }
 
-  async create({ name, phone, date }: ICreate) {
+  async create({ name, phone, date, user_id }: ICreate) {
     const dateFormatted = new Date(date);
     const hourStart = startOfHour(dateFormatted);
     const hour = getHours(hourStart);
@@ -22,7 +22,10 @@ class ScheduleService {
       throw new Error('It is not allowed to schedule old date');
     }
 
-    const checkIsAvailable = await this.scheduleRepository.find(hourStart);
+    const checkIsAvailable = await this.scheduleRepository.find(
+      hourStart,
+      user_id,
+    );
 
     if (checkIsAvailable) {
       throw new Error('Schedule date is not available');
@@ -32,6 +35,7 @@ class ScheduleService {
       name,
       phone,
       date: hourStart,
+      user_id,
     });
 
     return create;
@@ -43,7 +47,7 @@ class ScheduleService {
     return result;
   }
 
-  async update(id: string, date: Date) {
+  async update(id: string, date: Date, user_id: string) {
     const dateFormatted = new Date(date);
     const hourStart = startOfHour(dateFormatted);
     const hour = getHours(hourStart);
@@ -56,7 +60,10 @@ class ScheduleService {
       throw new Error('It is not allowed to schedule old date');
     }
 
-    const checkIsAvailable = await this.scheduleRepository.find(hourStart);
+    const checkIsAvailable = await this.scheduleRepository.find(
+      hourStart,
+      user_id,
+    );
 
     if (checkIsAvailable) {
       throw new Error('Schedule date is not available');

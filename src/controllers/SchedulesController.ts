@@ -11,9 +11,15 @@ class SchedulesController {
 
   async store(request: Request, response: Response, next: NextFunction) {
     const { name, phone, date } = request.body;
+    const { user_id } = request;
 
     try {
-      const result = await this.scheduleService.create({ name, phone, date });
+      const result = await this.scheduleService.create({
+        name,
+        phone,
+        date,
+        user_id,
+      });
 
       return response.status(201).json(result);
     } catch (error) {
@@ -37,9 +43,10 @@ class SchedulesController {
   async update(request: Request, response: Response, next: NextFunction) {
     const { id } = request.params;
     const { date } = request.body;
+    const { user_id } = request;
 
     try {
-      const result = await this.scheduleService.update(id, date);
+      const result = await this.scheduleService.update(id, date, user_id);
 
       return response.json(result);
     } catch (error) {
