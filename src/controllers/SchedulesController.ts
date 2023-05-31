@@ -26,7 +26,7 @@ class SchedulesController {
     const parseDate = date ? parseISO(date.toString()) : new Date();
 
     try {
-      const result = await this.scheduleService.index(parseDate)
+      const result = await this.scheduleService.index(parseDate);
 
       return response.json(result);
     } catch (error) {
@@ -34,8 +34,17 @@ class SchedulesController {
     }
   }
 
-  update(request: Request, response: Response, next: NextFunction) {
-    //Update a schedule
+  async update(request: Request, response: Response, next: NextFunction) {
+    const { id } = request.params;
+    const { date } = request.body;
+
+    try {
+      const result = await this.scheduleService.update(id, date);
+
+      return response.json(result);
+    } catch (error) {
+      next(error);
+    }
   }
 
   delete(request: Request, response: Response, next: NextFunction) {
