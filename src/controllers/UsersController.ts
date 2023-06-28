@@ -8,14 +8,6 @@ class UsersController {
     this.usersService = new UsersService();
   }
 
-  index() {
-    //search all
-  }
-
-  show() {
-    //search one
-  }
-
   async store(request: Request, response: Response, next: NextFunction) {
     const { name, email, password } = request.body;
 

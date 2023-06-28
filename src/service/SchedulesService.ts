@@ -1,18 +1,26 @@
 import { ICreate } from '../interfaces/SchedulesInterface';
-import { getHours, isBefore, startOfHour } from 'date-fns';
+import { getDay, getHours, isBefore, startOfHour } from 'date-fns';
 import { SchedulesRepository } from '../repositories/SchedulesRepository';
+import { UsersRepository } from '../repositories/UsersRepository';
 
 class ScheduleService {
   private schedulesRepository: SchedulesRepository;
+  private usersRepository: UsersRepository;
 
   constructor() {
     this.schedulesRepository = new SchedulesRepository();
+    this.usersRepository = new UsersRepository();
   }
 
   async create({ name, phone, date, user_id }: ICreate) {
     const dateFormatted = new Date(date);
     const hourStart = startOfHour(dateFormatted);
     const hour = getHours(hourStart);
+    const day = getDay(dateFormatted);
+
+    if (day === 0 || day === 6) {
+      throw new Error('Create a schedule only in week days');
+    }
 
     if (hour < 9 || hour >= 20) {
       throw new Error('Create a schedule between 9 p.m. and 19 p.m.');
