@@ -32,31 +32,44 @@ class UsersService {
 
   async update({
     name,
+    email,
     oldPassword,
     newPassword,
     avatar_url,
     user_id,
   }: IUpdate) {
-    if (name) {
-      await this.usersRepository.updateName(name, user_id);
+    const findUserById = await this.usersRepository.findUserById(user_id);
+
+    if (!findUserById) {
+      throw new Error('User not found.');
     }
 
+    const userData = {
+      name: findUserById?.name,
+      email: findUserById?.email,
+      avatar_url: findUserById?.avatar_url,
+    };
+
     if (oldPassword && newPassword) {
-      const findUserById = await this.usersRepository.findUserById(user_id);
-
-      if (!findUserById) {
-        throw new Error('User not found.');
-      }
-
       const passwordMatch = await compare(oldPassword, findUserById.password);
 
       if (!passwordMatch) {
-        throw new Error('Password invalid.');
+        throw new Error('Senha atual incorreta.');
       }
 
       const hashPassword = await hash(newPassword, 10);
 
       await this.usersRepository.updatePassword(hashPassword, user_id);
+    }
+
+    if (name !== findUserById.name) {
+      const result = await this.usersRepository.updateName(name, user_id);
+      userData.name = result.name;
+    }
+
+    if (email !== findUserById.email) {
+      const result = await this.usersRepository.updateEmail(email, user_id);
+      userData.email = result.email;
     }
 
     if (avatar_url) {
@@ -69,11 +82,16 @@ class UsersService {
         })
         .promise();
 
-      await this.usersRepository.updateAvatar(uploadS3.Location, user_id);
+      const result = await this.usersRepository.updateAvatar(
+        uploadS3.Location,
+        user_id,
+      );
+      userData.avatar_url = result.avatar_url;
     }
 
     return {
       message: 'User updated successfully',
+      user: userData,
     };
   }
 
@@ -119,6 +137,7 @@ class UsersService {
       user: {
         name: findUser.name,
         email: findUser.email,
+        avatar_url: findUser.avatar_url,
       },
     };
   }

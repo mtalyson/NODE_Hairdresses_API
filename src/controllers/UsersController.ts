@@ -45,12 +45,13 @@ class UsersController {
   }
 
   async update(request: Request, response: Response, next: NextFunction) {
-    const { name, oldPassword, newPassword } = request.body;
+    const { name, email, oldPassword, newPassword } = request.body;
     const { user_id } = request;
 
     try {
       const result = await this.usersService.update({
         name,
+        email,
         oldPassword,
         newPassword,
         avatar_url: request.file,

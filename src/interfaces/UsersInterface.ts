@@ -6,6 +6,7 @@ export interface ICreate {
 
 export interface IUpdate {
   name: string;
+  email: string;
   oldPassword: string;
   newPassword: string;
   avatar_url?: FileUpload;

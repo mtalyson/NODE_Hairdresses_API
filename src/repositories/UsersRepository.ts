@@ -47,6 +47,19 @@ class UsersRepository {
     return result;
   }
 
+  async updateEmail(email: string, user_id: string) {
+    const result = await prisma.users.update({
+      where: {
+        id: user_id,
+      },
+      data: {
+        email,
+      },
+    });
+
+    return result;
+  }
+
   async updateAvatar(avatar_url: string, user_id: string) {
     const result = await prisma.users.update({
       where: {
